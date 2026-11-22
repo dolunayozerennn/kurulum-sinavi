@@ -79,7 +79,7 @@ switch ($Urun) {
     '16' {
         $ok = Adim 'kur (belgedeki: RemoteSigned)' 'powershell -NoProfile -ExecutionPolicy RemoteSigned -File .\kur.ps1' 45
         if (-not $ok) { Adim 'kur (Bypass ile yeniden)' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' 45 | Out-Null }
-        Adim 'son toplanti bilgisi (py -3)' 'py -3 son_toplanti.py --bilgi' 5 | Out-Null
+        Adim 'son toplanti bilgisi (py -3, kayit yokken)' '$o = py -3 son_toplanti.py --bilgi 2>&1 | Out-String; Write-Host $o; if ($o -match "bulunamad") { exit 0 } else { exit 1 }' 5 | Out-Null
         Adim 'kaldir (belgedeki: RemoteSigned)' 'powershell -NoProfile -ExecutionPolicy RemoteSigned -File .\kaldir.ps1' 10 | Out-Null
     }
     '17' {
