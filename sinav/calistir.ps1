@@ -34,8 +34,12 @@ function Adim([string]$Ad, [string]$Komut, [int]$Dakika = 45, [switch]$KaldiBekl
     $kod = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($govde))
     $cikis = Join-Path $env:RUNNER_TEMP 'adim.out'; $hata = Join-Path $env:RUNNER_TEMP 'adim.err'
     $sure = [Diagnostics.Stopwatch]::StartNew()
+    # Ogrenci PowerShell'i Baslat menusunden acar; pwsh 7'nin modul yolu 5.1'e sizmasin
+    $eskiModul = $env:PSModulePath
+    $env:PSModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules;$env:ProgramFiles\WindowsPowerShell\Modules;$env:SystemRoot\system32\WindowsPowerShell\v1.0\Modules"
     $p = Start-Process powershell.exe -ArgumentList @('-NoProfile', '-EncodedCommand', $kod) -PassThru -NoNewWindow `
         -RedirectStandardOutput $cikis -RedirectStandardError $hata
+    $env:PSModulePath = $eskiModul
     if (-not $p.WaitForExit($Dakika * 60000)) {
         & taskkill /PID $p.Id /T /F | Out-Null
         $durum = "ZAMAN ASIMI ($Dakika dk)"
@@ -61,6 +65,7 @@ switch ($Urun) {
     }
     '15' {
         if (Get-Command winget -ErrorAction SilentlyContinue) {
+            Adim 'winget git (belgedeki)' 'winget install --id Git.Git --exact --accept-source-agreements --accept-package-agreements' 15 | Out-Null
             Adim 'winget uv (belgedeki)' 'winget install --id astral-sh.uv --exact --accept-source-agreements --accept-package-agreements' 15 | Out-Null
         } else {
             Adim 'uv (winget yok, resmi kurucu)' 'irm https://astral.sh/uv/install.ps1 | iex' 15 | Out-Null
