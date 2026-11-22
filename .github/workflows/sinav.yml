@@ -1,0 +1,64 @@
+name: sinav
+on:
+  workflow_dispatch:
+    inputs:
+      urunler:
+        description: "Bosluklu urun listesi"
+        default: "14 15 16 17"
+      sistemler:
+        description: "windows-2025 windows-2022 macos-15-intel"
+        default: "windows-2025"
+permissions:
+  contents: read
+jobs:
+  matris:
+    runs-on: ubuntu-latest
+    outputs:
+      m: ${{ steps.m.outputs.m }}
+    steps:
+      - id: m
+        env:
+          U: ${{ inputs.urunler }}
+          S: ${{ inputs.sistemler }}
+        run: |
+          python3 -c "import json,os;print('m='+json.dumps({'include':[{'urun':u,'os':s} for u in os.environ['U'].split() for s in os.environ['S'].split()]}))" >> "$GITHUB_OUTPUT"
+  sina:
+    needs: matris
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matris.outputs.m) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    name: ${{ matrix.urun }} · ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paketi coz
+        shell: bash
+        env:
+          KIT_ANAHTAR: ${{ secrets.KIT_ANAHTAR }}
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KIT_ANAHTAR -in "paketler/${{ matrix.urun }}.zip.enc" -out "$RUNNER_TEMP/kit.zip"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KIT_ANAHTAR -in paketler/varlik.zip.enc -out "$RUNNER_TEMP/varlik.zip"
+          mkdir -p "$RUNNER_TEMP/varlik" && cd "$RUNNER_TEMP/varlik" && unzip -q ../varlik.zip
+      - name: Sina (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./sinav/calistir.ps1 -Urun ${{ matrix.urun }} -Zip "$env:RUNNER_TEMP\kit.zip" -Varlik "$env:RUNNER_TEMP\varlik" -Log "$env:RUNNER_TEMP\kayit.txt"
+      - name: Sina (Mac)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: bash sinav/calistir.sh "${{ matrix.urun }}" "$RUNNER_TEMP/kit.zip" "$RUNNER_TEMP/varlik" "$RUNNER_TEMP/kayit.txt"
+      - name: Kaydi sifrele
+        if: always()
+        shell: bash
+        env:
+          KIT_ANAHTAR: ${{ secrets.KIT_ANAHTAR }}
+        run: |
+          touch "$RUNNER_TEMP/kayit.txt"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:KIT_ANAHTAR -in "$RUNNER_TEMP/kayit.txt" -out kayit.enc
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kayit-${{ matrix.urun }}-${{ matrix.os }}
+          path: kayit.enc
+          retention-days: 7
