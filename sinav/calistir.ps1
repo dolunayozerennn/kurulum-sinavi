@@ -65,7 +65,8 @@ switch ($Urun) {
     }
     '15' {
         if (Get-Command winget -ErrorAction SilentlyContinue) {
-            Adim 'winget git (belgedeki)' 'winget install --id Git.Git --exact --accept-source-agreements --accept-package-agreements' 15 | Out-Null
+            Adim 'winget git (belgedeki)' 'winget install --id Git.Git --exact --accept-source-agreements --accept-package-agreements; if (Test-Path "$env:ProgramFiles\Git\cmd\git.exe") { exit 0 }' 15 | Out-Null
+            $script:sistem += "$env:ProgramFiles\Git\cmd"
             Adim 'winget uv (belgedeki)' 'winget install --id astral-sh.uv --exact --accept-source-agreements --accept-package-agreements' 15 | Out-Null
         } else {
             Adim 'uv (winget yok, resmi kurucu)' 'irm https://astral.sh/uv/install.ps1 | iex' 15 | Out-Null
