@@ -84,11 +84,14 @@ switch ($Urun) {
             $kalip = '(?m)^powershell(?:\.exe)? -NoProfile -ExecutionPolicy Bypass -File \.\\' + $isim + '\.ps1\s*$'
             $satir = [regex]::Match($belge, $kalip)
             if (-not $satir.Success) { throw "Belgelenen $isim komutu bulunamadı." }
-            Adim "$isim (belgedeki komut)" $satir.Value.Trim() 45 | Out-Null
             if ($isim -eq 'kur') {
+                Adim 'arka kurulum ve durum' "py -3 -X utf8 -u '$PSScriptRoot\16-arka.py'" 30 | Out-Null
                 Adim 'son toplanti bilgisi (kayit yokken)' '$o = py -3 son_toplanti.py --bilgi 2>&1 | Out-String; Write-Host $o; if ($LASTEXITCODE -eq 1 -and $o -match "bulunamad") { exit 0 } else { exit 1 }' 5 | Out-Null
                 Adim 'ornek toplantidan gercek Markdown' '$env:PYTHONUTF8="1"; py -3 kutu_sinavi.py' 5 | Out-Null
                 Adim 'cevrimdisi ac ve ayni pencereyi goster' "& '$PSScriptRoot\16-acilis.ps1'" 5 | Out-Null
+            } else {
+                Adim "$isim (belgedeki komut)" $satir.Value.Trim() 10 | Out-Null
+                Adim 'sinav kalintilarini temizle' "py -3 -X utf8 -u '$PSScriptRoot\16-arka.py' --temiz" 5 | Out-Null
             }
         }
     }
