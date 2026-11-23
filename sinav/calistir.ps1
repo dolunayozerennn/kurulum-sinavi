@@ -77,6 +77,7 @@ switch ($Urun) {
         Adim 'kaldir' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kaldir.ps1' 10 | Out-Null
     }
     '16' {
+        Adim 'iki indirmeyi kes ve surdur' "py -3 -X utf8 -u '$PSScriptRoot\16-kesinti.py'" 30 | Out-Null
         $belge = [IO.File]::ReadAllText((Join-Path $proje 'KURULUM.md'))
         foreach ($isim in @('kur','kaldir')) {
             $kalip = '(?m)^powershell(?:\.exe)? -NoProfile -ExecutionPolicy Bypass -File \.\\' + $isim + '\.ps1\s*$'
