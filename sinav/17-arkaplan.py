@@ -169,7 +169,7 @@ def run_background(box, tmp, info):
                    "assert a.mode=='RGBA' and a.getchannel('A').getextrema()==(0,255) and b.size==(1600,1600);"
                    "print(json.dumps(dict(png=a.size,alfa=a.getchannel('A').getextrema(),jpg=b.size)))")
         info["cikti"] = json.loads(subprocess.check_output([str(py), "-c", inspect,
-                                    str(output/(pic.name+"_seffaf.png")), str(output/(pic.name+"_beyaz.jpg"))],cwd=box))
+                                    str(output/(pic.stem+"_seffaf.png")), str(output/(pic.stem+"_beyaz.jpg"))],cwd=box))
         info["gecti"] = True
     finally:
         for p in commands:

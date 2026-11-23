@@ -201,7 +201,7 @@ def exercise(box, root, report):
                  "assert a.mode=='RGBA' and a.getchannel('A').getextrema()==(0,255) and b.size==(1600,1600);"
                  "print(json.dumps(dict(png=a.size,alfa=a.getchannel('A').getextrema(),jpg=b.size)))")
         report["cikti"] = json.loads(subprocess.check_output([str(py), "-c", check,
-                                     str(out / (pic.name + "_seffaf.png")), str(out / (pic.name + "_beyaz.jpg"))],
+                                     str(out / (pic.stem + "_seffaf.png")), str(out / (pic.stem + "_beyaz.jpg"))],
                                      cwd=box))
         report["gecti"] = True
     finally:
@@ -230,6 +230,10 @@ def main():
                 subprocess.run(["/usr/bin/ditto", "-x", "-k", str(args.zip), str(tmp)], check=True)
                 box = tmp / "Projeler" / "Arka_Plan_Silici"
             exercise(box, tmp, report)
+            if args.ci_box:
+                python = box.resolve() / ".ortam" / ("Scripts/python.exe" if WINDOW_NAME else "bin/python")
+                subprocess.run([str(python), str(Path(__file__).with_name("17-adlandirma.py")),
+                                "--box", str(box.resolve())], check=True)
         except Exception as e:
             report["hata"] = repr(e)
             raise
