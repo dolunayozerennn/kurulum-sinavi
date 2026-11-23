@@ -96,7 +96,7 @@ switch ($Urun) {
         }
     }
     '17' {
-        Adim 'kur (belgedeki komut)' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' 45 | Out-Null
+        Adim 'arka planda temiz kur ve izle' "py -3 -X utf8 '$PSScriptRoot\17-arkaplan.py' --ci-box '.'" 45 | Out-Null
         Adim 'kesinti ve bayttan devam' ".\.ortam\Scripts\python.exe '$PSScriptRoot\17-kesinti.py' --ci-box '.'" 35 | Out-Null
         Adim 'sil (Fotoğraflarım)' "New-Item -ItemType Directory -Force 'Fotoğraflarım' | Out-Null; Copy-Item '$Varlik\urun.jpg' 'Fotoğraflarım\ürün fotoğrafı.jpg'; .\.ortam\Scripts\python.exe sil.py 'Fotoğraflarım' --cikti 'İlanlarım' --golge; `$n=(Get-ChildItem 'İlanlarım' -File).Count; Write-Host cikti `$n; if (`$n -lt 1) { exit 1 }" 20 | Out-Null
         Adim 'kaldir' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kaldir.ps1' 10 | Out-Null
