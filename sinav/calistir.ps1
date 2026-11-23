@@ -77,10 +77,16 @@ switch ($Urun) {
         Adim 'kaldir' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kaldir.ps1' 10 | Out-Null
     }
     '16' {
-        $ok = Adim 'kur (belgedeki: RemoteSigned)' 'powershell -NoProfile -ExecutionPolicy RemoteSigned -File .\kur.ps1' 45
-        if (-not $ok) { Adim 'kur (Bypass ile yeniden)' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' 45 | Out-Null }
-        Adim 'son toplanti bilgisi (py -3, kayit yokken)' '$o = py -3 son_toplanti.py --bilgi 2>&1 | Out-String; Write-Host $o; if ($o -match "bulunamad") { exit 0 } else { exit 1 }' 5 | Out-Null
-        Adim 'kaldir (belgedeki: RemoteSigned)' 'powershell -NoProfile -ExecutionPolicy RemoteSigned -File .\kaldir.ps1' 10 | Out-Null
+        $belge = [IO.File]::ReadAllText((Join-Path $proje 'KURULUM.md'))
+        foreach ($isim in @('kur','kaldir')) {
+            $kalip = '(?m)^powershell(?:\.exe)? -NoProfile -ExecutionPolicy Bypass -File \.\\' + $isim + '\.ps1\s*$'
+            $satir = [regex]::Match($belge, $kalip)
+            if (-not $satir.Success) { throw "Belgelenen $isim komutu bulunamadı." }
+            Adim "$isim (belgedeki komut)" $satir.Value.Trim() 45 | Out-Null
+            if ($isim -eq 'kur') {
+                Adim 'son toplanti bilgisi (kayit yokken)' '$o = py -3 son_toplanti.py --bilgi 2>&1 | Out-String; Write-Host $o; if ($LASTEXITCODE -eq 1 -and $o -match "bulunamad") { exit 0 } else { exit 1 }' 5 | Out-Null
+            }
+        }
     }
     '17' {
         Adim 'kur (belgedeki komut)' 'powershell -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' 45 | Out-Null

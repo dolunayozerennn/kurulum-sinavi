@@ -24,7 +24,12 @@ case "$URUN" in
       adim "birlestir" 10 "curl -sf -o /tmp/b.pdf -F fileInput=@'$VARLIK/a.pdf' -F fileInput=@'$VARLIK/b.pdf' -F sortType=orderProvided http://127.0.0.1:18765/api/v1/general/merge-pdfs && head -c4 /tmp/b.pdf | grep -q '%PDF'"
       adim "kaldir" 10 "bash kaldir.sh" ;;
   15) adim "kur (Intel'de durmali)" 30 "bash kur.sh" ;;
-  16) adim "kur (Intel'de durmali)" 30 "bash kur.sh" ;;
+  16) adim "Intel destegi: indirmeden aciklama" 2 'test "$(uname -m)" = x86_64 || exit 1
+      mesaj=$(bash kur.sh 2>&1); kod=$?
+      echo "$mesaj"
+      test "$kod" = 1 && grep -q "Apple Silicon" <<< "$mesaj" &&
+      test ! -e "$HOME/Applications/meetily.app" &&
+      test ! -d "$HOME/Library/Application Support/com.meetily.ai/models"' ;;
   17) adim "kur" 45 "bash kur.sh"
       adim "sil" 20 "mkdir -p 'Fotoğraflarım' && cp '$VARLIK/urun.jpg' 'Fotoğraflarım/ürün fotoğrafı.jpg' && ./.ortam/bin/python sil.py 'Fotoğraflarım' --cikti 'İlanlarım' --golge && ls 'İlanlarım' | grep -q ."
       adim "kaldir" 10 "bash kaldir.sh" ;;
