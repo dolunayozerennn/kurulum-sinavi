@@ -58,6 +58,7 @@ function Adim([string]$Ad, [string]$Komut, [int]$Dakika = 45, [switch]$KaldiBekl
 Write-Host "Urun $Urun · klasor: Masaustu\Ayda 398 `$ Tasarruf\İndirilenler Şükrü Öz · internet isaretli dosyalar"
 switch ($Urun) {
     '14' {
+        Adim 'sure asimi ve devam' 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\sinav\kesinti.ps1' 18 | Out-Null
         Adim 'kur (belgedeki komut)' 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' | Out-Null
         Adim 'birlestir (127.0.0.1:18765)' "Add-Type -AssemblyName System.Net.Http; `$u='http://127.0.0.1:18765/api/v1/general/merge-pdfs'; `$s=[Net.Http.HttpClient]::new(); `$f=[Net.Http.MultipartFormDataContent]::new(); foreach(`$n in 'a.pdf','b.pdf'){ `$c=[Net.Http.ByteArrayContent]::new([IO.File]::ReadAllBytes('$Varlik\' + `$n)); `$f.Add(`$c,'fileInput',`$n) }; `$f.Add([Net.Http.StringContent]::new('orderProvided'),'sortType'); `$r=`$s.PostAsync(`$u,`$f).Result; `$b=`$r.Content.ReadAsByteArrayAsync().Result; Write-Host `$r.StatusCode `$b.Length; if(-not `$r.IsSuccessStatusCode -or [Text.Encoding]::ASCII.GetString(`$b,0,4) -ne '%PDF'){ exit 1 }" 10 | Out-Null
         Adim 'kur ikinci kez' 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\kur.ps1' | Out-Null

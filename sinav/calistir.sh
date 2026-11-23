@@ -20,7 +20,9 @@ adim() { # ad dakika komut
 }
 echo "Urun $URUN · $(uname -m) · macOS $(sw_vers -productVersion)"
 case "$URUN" in
-  14) adim "kur" 45 "bash kur.sh"
+  14) sinav14="$(cd "$(dirname "$0")" && pwd)/14-kesinti.py"
+      adim "SIGTERM ve bayttan devam" 26 "/usr/bin/python3 '$sinav14'"
+      adim "kur" 45 "bash kur.sh"
       adim "birlestir" 10 "curl -sf -o /tmp/b.pdf -F fileInput=@'$VARLIK/a.pdf' -F fileInput=@'$VARLIK/b.pdf' -F sortType=orderProvided http://127.0.0.1:18765/api/v1/general/merge-pdfs && head -c4 /tmp/b.pdf | grep -q '%PDF'"
       adim "kaldir" 10 "bash kaldir.sh" ;;
   15) adim "kur (Intel'de durmali)" 30 "bash kur.sh" ;;
