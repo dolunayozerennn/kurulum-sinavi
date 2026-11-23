@@ -12,9 +12,15 @@ function Get-KitWindow {
 }
 function Wait-KitWindow {
     $end = [DateTime]::UtcNow.AddSeconds(50)
+    $last = ''
+    $stable = 0
     do {
         $visible = @(Get-KitWindow)
-        if ($visible.Count -eq 1) { return $visible[0] }
+        if ($visible.Count -eq 1 -and $visible[0].MainWindowTitle) {
+            $current = '{0}/{1}/{2}' -f $visible[0].Id,$visible[0].MainWindowHandle,$visible[0].MainWindowTitle
+            if ($current -eq $last) { $stable++ } else { $stable = 0; $last = $current }
+            if ($stable -ge 12) { return $visible[0] }
+        } else { $stable = 0; $last = '' }
         Start-Sleep -Milliseconds 400
     } while ([DateTime]::UtcNow -lt $end)
     throw 'Tek bir Meetily penceresi bulunamadı.'
@@ -39,7 +45,8 @@ try {
     & py -3 ac.py
     if ($LASTEXITCODE -ne 0) { throw 'İkinci açılış başarısız.' }
     Start-Sleep -Seconds 4
-    $second = @(Get-KitWindow)
+    $second = @(Wait-KitWindow)
+    Write-Output ("İkinci açılışta gözlenen: PID={0} HWND={1}" -f $second[0].Id, $second[0].MainWindowHandle)
     if ($second.Count -ne 1 -or $second[0].Id -ne $first.Id -or $second[0].MainWindowHandle -ne $handle) {
         throw 'İkinci çağrı aynı pencereye dönmedi.'
     }
