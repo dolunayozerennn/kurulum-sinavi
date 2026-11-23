@@ -55,7 +55,9 @@ def running_worker(box):
     try:
         if WIN:
             state = json.loads((box / ".arka-plan-kurulum" / "durum.json").read_text(encoding="utf-8-sig"))
-            return {"pid": int(state["pid"]), "kimlik": state["kimlik"]}
+            if state.get("asama") == "calisiyor" and int(state["pid"]) > 0:
+                return {"pid": int(state["pid"]), "kimlik": state["kimlik"]}
+            return {}
         pieces = (box / ".kurulum-takibi" / "durum").read_text().strip().split()
         if len(pieces) == 3 and pieces[0] == "calisiyor":
             return {"pid": int(pieces[1]), "grup": int(pieces[2])}
