@@ -31,6 +31,8 @@ case "$URUN" in
       test ! -e "$HOME/Applications/meetily.app" &&
       test ! -d "$HOME/Library/Application Support/com.meetily.ai/models"' ;;
   17) adim "kur" 45 "bash kur.sh"
+      sinav17="$(cd -- "$(dirname -- "$0")" && pwd)/17-kesinti.py"
+      adim "kesinti ve bayttan devam" 35 "./.ortam/bin/python '$sinav17' --ci-box '.'"
       adim "sil" 20 "mkdir -p 'Fotoğraflarım' && cp '$VARLIK/urun.jpg' 'Fotoğraflarım/ürün fotoğrafı.jpg' && ./.ortam/bin/python sil.py 'Fotoğraflarım' --cikti 'İlanlarım' --golge && ls 'İlanlarım' | grep -q ."
       adim "kaldir" 10 "bash kaldir.sh" ;;
 esac
